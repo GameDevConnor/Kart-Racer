@@ -68,7 +68,33 @@ public class Control : MonoBehaviour
 
         inputZ = forwardDisplacement + backwardDisplacement;
 
-        input = new Vector3(inputX, 0f, inputZ);
+        if (inputZ > 0)
+        {
+            if (inputX > 0)
+            {
+                transform.Rotate(0, turnSpeed * Time.deltaTime, 0, Space.Self);
+            }
+
+            if (inputX < 0)
+            {
+                transform.Rotate(0, -turnSpeed * Time.deltaTime, 0, Space.Self);
+            }
+        }
+        else if (inputZ < 0)
+        {
+            if (inputX > 0)
+            {
+                transform.Rotate(0, -turnSpeed * Time.deltaTime, 0, Space.Self);
+            }
+
+            if (inputX < 0)
+            {
+                transform.Rotate(0, turnSpeed * Time.deltaTime, 0, Space.Self);
+            }
+        }
+
+
+        input = transform.forward.normalized * inputZ;
 
         characterController.Move(input * Time.deltaTime);
 
