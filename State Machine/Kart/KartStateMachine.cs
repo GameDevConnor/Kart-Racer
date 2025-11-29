@@ -23,6 +23,8 @@ public class KartStateMachine : StateMachine<KartStateMachine.KartState>
 
     public KartContext kartContext;
 
+    public Vector2 inputs;
+
     public enum KartState
     {
         Idle,
@@ -48,5 +50,10 @@ public class KartStateMachine : StateMachine<KartStateMachine.KartState>
         States.Add(KartState.Falling, new Falling(kartContext, KartState.Falling));
 
         CurrentState = States[KartState.Falling];
+    }
+
+    public void GetInputValue(InputAction.CallbackContext inputActionCallbackContext)
+    {
+        inputs = inputActionCallbackContext.ReadValue<Vector2>();
     }
 }

@@ -57,8 +57,8 @@ public class Forward : KartInteractionState
             context.ForwardInputTime = Mathf.Clamp(context.ForwardInputTime, 0, 1);
             context.BackwardInputTime = Mathf.Clamp(context.BackwardInputTime, -1, 0);
 
-            float inputX = Input.GetAxis("Horizontal");
-            float inputZ = Input.GetAxis("Vertical");
+            float inputX = machine.inputs.x;
+            float inputZ = machine.inputs.y;
 
             if (inputZ > 0)
             {
