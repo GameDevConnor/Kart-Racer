@@ -6,8 +6,6 @@ public abstract class KartInteractionState : BaseState<KartStateMachine.KartStat
 
     protected KartStateMachine machine = GameObject.FindFirstObjectByType<KartStateMachine>();
 
-    public bool isGrounded;
-
     public float xRotation;
     public float yRotation;
     public float zRotation;
@@ -19,6 +17,8 @@ public abstract class KartInteractionState : BaseState<KartStateMachine.KartStat
 
     public override void ExitState()
     {
+        context.ForwardInputTime = 0f;
+        context.BackwardInputTime = 0f;
         context.exitVelocity = context.CharacterController.velocity;
     }
 }

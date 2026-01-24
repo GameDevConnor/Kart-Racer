@@ -30,7 +30,8 @@ public class KartStateMachine : StateMachine<KartStateMachine.KartState>
         Idle,
         Forward,
         Backward,
-        Falling
+        Falling,
+        Slide
     }
 
     private void Awake()
@@ -48,6 +49,7 @@ public class KartStateMachine : StateMachine<KartStateMachine.KartState>
         States.Add(KartState.Forward, new Forward(kartContext, KartState.Forward));
         States.Add(KartState.Backward, new Backward(kartContext, KartState.Backward));
         States.Add(KartState.Falling, new Falling(kartContext, KartState.Falling));
+        States.Add(KartState.Slide, new Slide(kartContext, KartState.Slide));
 
         CurrentState = States[KartState.Falling];
     }
@@ -55,5 +57,21 @@ public class KartStateMachine : StateMachine<KartStateMachine.KartState>
     public void GetInputValue(InputAction.CallbackContext inputActionCallbackContext)
     {
         inputs = inputActionCallbackContext.ReadValue<Vector2>();
+    }
+
+    void OnDrawGizmos()
+    {
+        if (!Application.isPlaying) return;
+
+        Gizmos.color = Color.green;
+        Gizmos.DrawRay(transform.position, kartContext.forwardDirection * kartContext.CharacterController.velocity.magnitude);
+
+        Gizmos.color = Color.blue;
+        Gizmos.DrawRay(transform.position, transform.TransformDirection(Vector3.down) * (transform.localScale.y * Mathf.Sqrt(2)));
+        Gizmos.DrawRay(transform.position, transform.TransformDirection(Vector3.up) * (transform.localScale.y * Mathf.Sqrt(2)));
+
+        Gizmos.color = Color.purple;
+        Gizmos.DrawRay(transform.position, Vector3.down * 10f);
+        Gizmos.DrawRay(transform.position, kartContext.angleRotation * 10f);
     }
 }

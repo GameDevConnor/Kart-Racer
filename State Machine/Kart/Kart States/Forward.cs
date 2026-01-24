@@ -1,10 +1,13 @@
+using JetBrains.Annotations;
+using NUnit.Framework.Interfaces;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UIElements;
 using UnityEngine.Windows;
 using Input = UnityEngine.Input;
-using UnityEngine.InputSystem;
 public class Forward : KartInteractionState
 {
+
     public Forward(KartContext kartContext, KartStateMachine.KartState key) : base(kartContext, key)
     {
         KartContext context = kartContext;
@@ -15,6 +18,12 @@ public class Forward : KartInteractionState
         context.TurnSpeed = 30f;
         context.TimeRate = 1f;
         context.TopSpeed = 30f;
+
+        context.entranceVelocity = context.exitVelocity;
+
+        //Debug.Log(Quaternion.FromToRotation(new Vector3(0f,0.16f,-0.99f), new Vector3(0,-0.02f,-1f)).eulerAngles);
+        //Debug.Log(Vector3.Angle(new Vector3(0f, 0.16f, -0.99f), new Vector3(0, -0.02f, -1f)));
+
     }
 
     //public override void ExitState()
@@ -44,9 +53,33 @@ public class Forward : KartInteractionState
 
     public override void UpdateState()
     {
-        isGrounded = context.CharacterController.isGrounded;
 
-        if (!isGrounded)
+        context.playerAngle = Vector3.Angle(machine.transform.TransformDirection(Vector3.down), Vector3.down);
+
+        RaycastHit downwardHit;
+        if (Physics.Raycast(machine.transform.position, Vector3.down, out downwardHit, Mathf.Infinity))
+        {
+            context.downwardHitNormal = downwardHit.normal;
+        }
+
+
+            if (context.forwardDirection.y > 0)
+        {
+            context.uphill = true;
+            context.downhill = false;
+        }
+        else if (context.forwardDirection.y < 0)
+        {
+            context.uphill = false;
+            context.downhill = true;
+        }
+        else
+        {
+            context.uphill = false;
+            context.downhill = false;
+        }
+
+        if (context.isGrounded == false)
         {
             machine.TransitionToState(KartStateMachine.KartState.Falling);
         }
@@ -122,18 +155,53 @@ public class Forward : KartInteractionState
                 }
             }
 
-            context.Input = context.forwardDirection.normalized * inputZ;
 
-            Vector3 movement;
-
-            if (Mathf.Abs(context.CharacterController.velocity.y) > 0.001f)
+            RaycastHit hit;
+            RaycastHit hitGravity;
+            if (Physics.Raycast(machine.transform.position, machine.transform.TransformDirection(Vector3.down), out hit, (machine.transform.localScale.y * Mathf.Sqrt(2))))
             {
-                movement = new Vector3(context.Input.x, context.CharacterController.velocity.y, context.Input.z);
+                context.isGrounded = true;
+                Quaternion rotationXZ = Quaternion.FromToRotation(machine.transform.TransformDirection(Vector3.up), hit.normal);
+
+                context.angleRotation = hit.normal;
+
+                machine.transform.rotation = rotationXZ * machine.transform.rotation;
+                context.forwardDirection = machine.transform.forward;
+            
             }
             else
             {
-                movement = new Vector3(context.Input.x, -context.gravity, context.Input.z);
+                if ((Physics.Raycast(machine.transform.position, Vector3.down, out hitGravity, (machine.transform.localScale.y * Mathf.Sqrt(2))) && context.CharacterController.velocity.y <= 0f))
+                {
+                    context.groundAngle = Vector3.Angle(hitGravity.normal, Vector3.down);
+
+                    context.isGrounded = true;
+                    Quaternion rotationXZ = Quaternion.FromToRotation(machine.transform.TransformDirection(Vector3.up), hitGravity.normal);
+                    
+                    machine.transform.rotation = rotationXZ * machine.transform.rotation;
+                    context.forwardDirection = rotationXZ * context.forwardDirection;
+
+                    machine.transform.forward = context.forwardDirection;
+                }
+                else
+                {
+                    context.isGrounded = false;
+                }
             }
+
+            if ((context.playerAngle > context.slideThreshold) && (context.Input.magnitude < context.VelocityThresholdForAngle(context.playerAngle)))
+            {
+                machine.TransitionToState(KartStateMachine.KartState.Slide);
+            }
+
+            if ((context.playerAngle > context.fallThreshold) && (context.Input.magnitude < context.VelocityThresholdForAngle(context.playerAngle)))
+            {
+                context.isGrounded = false;
+            }
+
+            context.Input = context.forwardDirection.normalized * inputZ;
+
+            Vector3 movement = new Vector3(context.Input.x, context.Input.y, context.Input.z);
 
             context.CharacterController.Move(movement * Time.deltaTime);
         }

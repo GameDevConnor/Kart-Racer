@@ -9,7 +9,6 @@ public class Idle : KartInteractionState
 
     public override void EnterState()
     {
-        Debug.Log("Entering Idle State");
         context.TurnSpeed = 30f;
         context.TimeRate = 1f;
         context.TopSpeed = 30f;
@@ -42,7 +41,6 @@ public class Idle : KartInteractionState
 
     public override void UpdateState()
     {
-        Debug.Log("Updating Idle State");
 
     }
 

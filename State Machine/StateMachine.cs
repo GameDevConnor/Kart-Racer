@@ -1,6 +1,7 @@
-using UnityEngine;
 using System;
 using System.Collections.Generic;
+using Unity.VisualScripting;
+using UnityEngine;
 
 public abstract class StateMachine<EState>: MonoBehaviour where EState : Enum
 {
@@ -8,7 +9,7 @@ public abstract class StateMachine<EState>: MonoBehaviour where EState : Enum
 
     protected Dictionary<EState, BaseState<EState>> States = new Dictionary<EState, BaseState<EState>>();
 
-    protected BaseState<EState> CurrentState;
+    public BaseState<EState> CurrentState;
 
     protected bool IsTransitioningState = false;
 

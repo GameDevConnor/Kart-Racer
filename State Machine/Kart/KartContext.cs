@@ -3,6 +3,9 @@ using UnityEngine;
 
 public class KartContext
 {
+
+    // This is where I put shared values. AKA, things I want to access in every class
+
     public Vector3 entranceVelocity;
     public Vector3 exitVelocity;
 
@@ -31,6 +34,18 @@ public class KartContext
     public float airResistance;
     public float minimumAirSpeed;
 
+    public bool isGrounded;
+
+    public bool gravityThreshold;
+
+    public bool uphill;
+    public bool downhill;
+    public float slideThreshold = 45f;
+    public float fallThreshold = 90f;
+    public float playerAngle;
+    public float groundAngle;
+    public Vector3 downwardHitNormal;
+
     public CharacterController CharacterController { get => characterController; set => characterController = value; }
     public float TopSpeed { get => topSpeed; set => topSpeed = value; }
     public Vector3 Input { get => input; set => input = value; }
@@ -49,6 +64,9 @@ public class KartContext
     public float TurnSpeed { get => turnSpeed; set => turnSpeed = value; }
 
     public Vector3 forwardDirection;
+    public Quaternion kartRotation;
+
+    public Vector3 angleRotation;
 
     public KartContext(CharacterController characterController, float topSpeed, Vector3 input, float displacement, float timeRate, float deadzone, float forwardDisplacement, float backwardDisplacement, float forwardInputTime, float backwardInputTime, float turnLimit, float turnSpeed, Vector3 forwardDirection)
     {
@@ -65,9 +83,20 @@ public class KartContext
         this.TurnLimit = turnLimit;
         this.TurnSpeed = turnSpeed;
         this.forwardDirection = forwardDirection;
+        this.kartRotation = Quaternion.identity;
     }
 
 
+    public float VelocityThresholdForAngle(float angle)
+    {
+        return ((1.0f/5.0f) * angle) - (topSpeed / 2.0f);
+        //return 0f;
+    }
+
+    //public float VelocityMultiplierForAngle(float angle)
+    //{
+        
+    //}
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
